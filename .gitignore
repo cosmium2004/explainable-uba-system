@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables
+.env
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Deployer (duplicate deployment folder)
+Deployer/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Logs
+logs/
+*.log
+
+# ML Models and Data
+models/*.pkl
+models/llm/
+data/
+
+# Results
+results/
+visualizations/
+static/visualizations/
+
+# Test files
+test_batch.csv
+
+# System
+.DS_Store
+Thumbs.db
+*.stackdump

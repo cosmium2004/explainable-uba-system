@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Cloud UBA - XAI Demo{% endblock %}
+
+{% block content %}
+<h2>Explainable AI Demonstration</h2>
+<p>This page demonstrates the explainability features of the Cloud UBA system.</p>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Example Cases</h3>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="exampleTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="true-positive-tab" data-bs-toggle="tab" data-bs-target="#true-positive" type="button" role="tab" aria-controls="true-positive" aria-selected="true">True Positive</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="true-negative-tab" data-bs-toggle="tab" data-bs-target="#true-negative" type="button" role="tab" aria-controls="true-negative" aria-selected="false">True Negative</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="false-positive-tab" data-bs-toggle="tab" data-bs-target="#false-positive" type="button" role="tab" aria-controls="false-positive" aria-selected="false">False Positive</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="false-negative-tab" data-bs-toggle="tab" data-bs-target="#false-negative" type="button" role="tab" aria-controls="false-negative" aria-selected="false">False Negative</button>
+                    </li>
+                </ul>
+                <div class="tab-content p-3" id="exampleTabsContent">
+                    <div class="tab-pane fade show active" id="true-positive" role="tabpanel" aria-labelledby="true-positive-tab">
+                        <div class="loading-spinner">Loading...</div>
+                    </div>
+                    <div class="tab-pane fade" id="true-negative" role="tabpanel" aria-labelledby="true-negative-tab">
+                        <div class="loading-spinner">Loading...</div>
+                    </div>
+                    <div class="tab-pane fade" id="false-positive" role="tabpanel" aria-labelledby="false-positive-tab">
+                        <div class="loading-spinner">Loading...</div>
+                    </div>
+                    <div class="tab-pane fade" id="false-negative" role="tabpanel" aria-labelledby="false-negative-tab">
+                        <div class="loading-spinner">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Analyst Report</h3>
+            </div>
+            <div class="card-body">
+                <div id="analyst-report" class="p-3 bg-light">
+                    <p>Select an example above to view the analyst report.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch demo examples
+    fetch('/api/demo', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': '{{ api_key }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            const examples = data.examples;
+            
+            // Update tabs with example data
+            for (const [caseType, example] of Object.entries(examples)) {
+                const tabId = caseType.replace('_', '-');
+                const tabContent = document.getElementById(tabId);
+                
+                if (tabContent) {
+                    // Create explanation content
+                    const explanation = example.explanation;
+                    
+                    let html = `
+                        <div class="alert ${explanation.predicted_label === 'Anomaly' ? 'alert-danger' : 'alert-success'}">
+                            <h4>Prediction: ${explanation.predicted_label}</h4>
+                            <p>Confidence: ${(explanation.confidence * 100).toFixed(2)}%</p>
+                            <p>True Label: ${explanation.true_label}</p>
+                        </div>
+                        
+                        <h5>Explanation</h5>
+                        <p>${explanation.explanation_text.replace(/\n/g, '<br>')}</p>
+                        
+                        <h5>Top Contributing Features</h5>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Value</th>
+                                    <th>Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    
+                    // Add top 5 features
+                    for (let i = 0; i < Math.min(5, explanation.feature_contributions.length); i++) {
+                        const contrib = explanation.feature_contributions[i];
+                        html += `
+                            <tr>
+                                <td>${contrib.feature}</td>
+                                <td>${contrib.feature_value.toFixed(2)}</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar ${contrib.shap_value > 0 ? 'bg-danger' : 'bg-success'}" 
+                                             role="progressbar" 
+                                             style="width: ${Math.min(Math.abs(contrib.shap_value) * 100, 100)}%">
+                                            ${contrib.shap_value.toFixed(4)}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                    
+                    html += `
+                            </tbody>
+                        </table>
+                        
+                        <button class="btn btn-primary view-report" data-case="${caseType}">View Full Analyst Report</button>
+                    `;
+                    
+                    tabContent.innerHTML = html;
+                }
+            }
+            
+            // Add event listeners to report buttons
+            document.querySelectorAll('.view-report').forEach(button => {
+                button.addEventListener('click', function() {
+                    const caseType = this.getAttribute('data-case');
+                    const report = examples[caseType].report;
+                    
+                    // Display the report
+                    document.getElementById('analyst-report').innerHTML = `<pre>${report}</pre>`;
+                });
+            });
+        } else {
+            console.error('Error loading demo data:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+</script>
+{% endblock %}

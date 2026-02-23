@@ -1,0 +1,43 @@
+body {
+    padding-bottom: 70px;
+}
+
+.card {
+    margin-bottom: 20px;
+}
+
+.alert-high {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-medium {
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    color: #856404;
+}
+
+.alert-low {
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    color: #0c5460;
+}
+
+.prediction-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.dashboard-card {
+    height: 100%;
+}
+
+.dashboard-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-card .card-text {
+    flex-grow: 1;
+}

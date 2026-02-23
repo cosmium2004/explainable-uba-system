@@ -1,0 +1,20 @@
+# Core dependencies
+flask==2.2.3
+pandas==1.5.3
+numpy==1.24.3
+scikit-learn==1.2.2
+joblib==1.2.0
+jsonschema==4.17.3
+
+# Explanation libraries
+# shap==0.41.0
+lime==0.2.0.1
+
+# Monitoring and utilities
+python-dotenv==1.0.0
+requests==2.32.2
+matplotlib==3.7.1
+seaborn==0.12.2
+
+# Testing
+pytest==7.3.1

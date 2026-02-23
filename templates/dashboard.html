@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UBA Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .result-card { margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .anomaly { background-color: #ffebee; border-left: 5px solid #f44336; }
+        .normal { background-color: #e8f5e9; border-left: 5px solid #4caf50; }
+        .plot-container { margin-bottom: 30px; }
+        .card { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card-header { background-color: #f1f8ff; }
+        .prediction-badge { padding: 5px 10px; border-radius: 4px; display: inline-block; margin-left: 10px; }
+        .prediction-anomaly { background-color: #ffebee; color: #c62828; }
+        .prediction-normal { background-color: #e8f5e9; color: #2e7d32; }
+        .confidence-meter { height: 10px; margin-top: 5px; border-radius: 5px; }
+        .explanation-box { background-color: #f9f9f9; padding: 10px; border-radius: 5px; margin-top: 10px; }
+        .tab-content { padding: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">User Behavior Analytics Dashboard</h1>
+        
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Analyze User Behavior</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="analysis-form">
+                            <div class="form-group">
+                                <label><strong>Input Type:</strong></label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="input_type" id="input-text" value="text" checked>
+                                    <label class="form-check-label" for="input-text">Custom Text</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="input_type" id="input-scenario" value="scenario">
+                                    <label class="form-check-label" for="input-scenario">Scenario</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="input_type" id="input-sample" value="sample">
+                                    <label class="form-check-label" for="input-sample">Sample Texts</label>
+                                </div>
+                            </div>
+                            
+                            <div id="text-input" class="form-group">
+                                <label for="text"><strong>Enter user activity description:</strong></label>
+                                <textarea class="form-control" id="text" name="text" rows="3" placeholder="Example: User logged in from Russia at 3 AM and downloaded 1.5GB of customer financial data"></textarea>
+                                
+                                <div class="mt-3">
+                                    <label><strong>Quick Templates:</strong></label>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 w-100 text-left template-btn">User logged in from unusual location at 3 AM</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 w-100 text-left template-btn">User downloaded 2GB of sensitive data</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 w-100 text-left template-btn">User accessed HR database for the first time</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 w-100 text-left template-btn">User logged in during normal hours and checked email</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 w-100 text-left template-btn">User accessed their usual applications</button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary mb-2 w-100 text-left template-btn">User modified permissions for multiple accounts</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="scenario-input" class="form-group" style="display: none;">
+                                <label for="scenario"><strong>Select scenario:</strong></label>
+                                <select class="form-control" id="scenario" name="scenario">
+                                    <option value="insider">Insider Threat</option>
+                                    <option value="external">External Threat</option>
+                                    <option value="mixed">Mixed Scenarios</option>
+                                </select>
+                                <div class="mt-3 scenario-description">
+                                    <div id="insider-desc" class="alert alert-info">
+                                        <strong>Insider Threat:</strong> Scenarios involving employees or contractors misusing their legitimate access to organizational resources.
+                                    </div>
+                                    <div id="external-desc" class="alert alert-info" style="display: none;">
+                                        <strong>External Threat:</strong> Scenarios involving external actors attempting to gain unauthorized access to organizational resources.
+                                    </div>
+                                    <div id="mixed-desc" class="alert alert-info" style="display: none;">
+                                        <strong>Mixed Scenarios:</strong> A combination of both normal and suspicious activities from various sources.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary mt-3">Analyze</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loading" style="display: none;">
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <p class="text-center">Analyzing user behavior and generating dashboard...</p>
+        </div>
+        
+        <div id="results-container" style="display: none;">
+            <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="analysis-tab" data-toggle="tab" href="#analysis" role="tab">Analysis Results</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="dashboard-tab" data-toggle="tab" href="#dashboard" role="tab">Interactive Dashboard</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="resultTabsContent">
+                <div class="tab-pane fade show active" id="analysis" role="tabpanel">
+                    <div id="results-list"></div>
+                </div>
+                
+                <div class="tab-pane fade" id="dashboard" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <!-- Replace iframe with direct inclusion of dashboard content -->
+                            <div id="dashboard-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Add Plotly.js for the dashboard -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Toggle input fields based on selection
+            $('input[name="input_type"]').change(function() {
+                if ($(this).val() === 'text') {
+                    $('#text-input').show();
+                    $('#scenario-input').hide();
+                } else if ($(this).val() === 'scenario') {
+                    $('#text-input').hide();
+                    $('#scenario-input').show();
+                } else {
+                    $('#text-input').hide();
+                    $('#scenario-input').hide();
+                }
+            });
+            
+            // Toggle scenario descriptions
+            $('#scenario').change(function() {
+                $('.scenario-description div').hide();
+                $('#' + $(this).val() + '-desc').show();
+            });
+            
+            // Template buttons
+            $('.template-btn').click(function() {
+                $('#text').val($(this).text());
+            });
+            
+            // Form submission
+            $('#analysis-form').submit(function(e) {
+                e.preventDefault();
+                
+                // Show loading indicator
+                $('#loading').show();
+                $('#results-container').hide();
+                
+                // Get form data
+                var formData = new FormData(this);
+                
+                // Send AJAX request
+                $.ajax({
+                    url: '/analyze',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // Hide loading indicator
+                        $('#loading').hide();
+                        
+                        // Display results
+                        displayResults(response.results);
+                        
+                        // Load dashboard content directly
+                        loadDashboardContent(response.dashboard_url);
+                        
+                        // Show results container
+                        $('#results-container').show();
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loading').hide();
+                        alert('Error: ' + error);
+                    }
+                });
+            });
+            
+            // Function to load dashboard content directly
+            function loadDashboardContent(dashboardUrl) {
+                // Create an iframe to display the dashboard
+                var iframe = document.createElement('iframe');
+                iframe.src = dashboardUrl;
+                iframe.width = '100%';
+                iframe.height = '800px';  // Increased height for better visibility
+                iframe.style.border = 'none';
+                
+                // Clear previous content and add the iframe
+                $('#dashboard-content').empty().append(iframe);
+                
+                // Add a direct link to open in new tab
+                var linkDiv = document.createElement('div');
+                linkDiv.className = 'mt-2 text-center';
+                linkDiv.innerHTML = '<a href="' + dashboardUrl + '" target="_blank" class="btn btn-sm btn-outline-primary">Open dashboard in new tab</a>';
+                $('#dashboard-content').append(linkDiv);
+            }
+            
+            // Function to display results
+            function displayResults(results) {
+                var resultsHtml = '';
+                
+                results.forEach(function(result, index) {
+                    var cardClass = result.llm_prediction === 'Anomaly' ? 'anomaly' : 'normal';
+                    var llmBadgeClass = result.llm_prediction === 'Anomaly' ? 'prediction-anomaly' : 'prediction-normal';
+                    var rfBadgeClass = result.rf_prediction === 'Anomaly' ? 'prediction-anomaly' : 'prediction-normal';
+                    var hybridBadgeClass = result.hybrid_prediction === 'Anomaly' ? 'prediction-anomaly' : 'prediction-normal';
+                    
+                    resultsHtml += '<div class="card result-card ' + cardClass + '">';
+                    resultsHtml += '<div class="card-header">Sample ' + (index + 1) + '</div>';
+                    resultsHtml += '<div class="card-body">';
+                    resultsHtml += '<p><strong>Text:</strong> ' + result.text + '</p>';
+                    
+                    // LLM Prediction
+                    resultsHtml += '<div class="row mb-3">';
+                    resultsHtml += '<div class="col-md-12">';
+                    resultsHtml += '<h5>LLM Analysis <span class="prediction-badge ' + llmBadgeClass + '">' + result.llm_prediction + '</span></h5>';
+                    resultsHtml += '<div>Confidence: ' + (result.llm_confidence * 100).toFixed(2) + '%</div>';
+                    resultsHtml += '<div class="progress">';
+                    resultsHtml += '<div class="progress-bar ' + (result.llm_prediction === 'Anomaly' ? 'bg-danger' : 'bg-success') + '" role="progressbar" style="width: ' + (result.llm_confidence * 100) + '%"></div>';
+                    resultsHtml += '</div>';
+                    resultsHtml += '<div class="explanation-box mt-2">' + result.llm_explanation + '</div>';
+                    resultsHtml += '</div>';
+                    resultsHtml += '</div>';
+                    
+                    // RF Prediction (if available)
+                    if (result.rf_prediction) {
+                        resultsHtml += '<div class="row mb-3">';
+                        resultsHtml += '<div class="col-md-12">';
+                        resultsHtml += '<h5>Random Forest Analysis <span class="prediction-badge ' + rfBadgeClass + '">' + result.rf_prediction + '</span></h5>';
+                        resultsHtml += '<div>Confidence: ' + (result.rf_confidence * 100).toFixed(2) + '%</div>';
+                        resultsHtml += '<div class="progress">';
+                        resultsHtml += '<div class="progress-bar ' + (result.rf_prediction === 'Anomaly' ? 'bg-danger' : 'bg-success') + '" role="progressbar" style="width: ' + (result.rf_confidence * 100) + '%"></div>';
+                        resultsHtml += '</div>';
+                        resultsHtml += '<div class="explanation-box mt-2">' + result.rf_explanation + '</div>';
+                        resultsHtml += '</div>';
+                        resultsHtml += '</div>';
+                        
+                        // Hybrid Prediction
+                        resultsHtml += '<div class="row">';
+                        resultsHtml += '<div class="col-md-12">';
+                        resultsHtml += '<h5>Hybrid Analysis <span class="prediction-badge ' + hybridBadgeClass + '">' + result.hybrid_prediction + '</span></h5>';
+                        resultsHtml += '<div>Confidence: ' + (result.hybrid_score * 100).toFixed(2) + '%</div>';
+                        resultsHtml += '<div class="progress">';
+                        resultsHtml += '<div class="progress-bar ' + (result.hybrid_prediction === 'Anomaly' ? 'bg-danger' : 'bg-success') + '" role="progressbar" style="width: ' + (result.hybrid_score * 100) + '%"></div>';
+                        resultsHtml += '</div>';
+                        resultsHtml += '</div>';
+                        resultsHtml += '</div>';
+                    }
+                    
+                    resultsHtml += '</div></div>';
+                });
+                
+                $('#results-list').html(resultsHtml);
+            }
+        });
+    </script>
+</body>
+</html>

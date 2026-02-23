@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Cloud UBA - Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Cloud UBA</h1>
+    <p class="lead">Cloud User Behavior Analytics for anomaly detection and threat monitoring</p>
+    <hr class="my-4">
+    <p>This system helps you detect anomalous user behavior in cloud environments using machine learning.</p>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Real-time Prediction</h5>
+                    <p class="card-text">Submit individual events for real-time anomaly detection.</p>
+                    <a href="/predict" class="btn btn-primary">Go to Prediction</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">Batch Processing</h5>
+                    <p class="card-text">Process multiple events at once for efficient analysis.</p>
+                    <a href="/batch" class="btn btn-primary">Go to Batch Processing</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title">System Dashboard</h5>
+                    <p class="card-text">View system metrics, recent predictions, and alerts.</p>
+                    <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

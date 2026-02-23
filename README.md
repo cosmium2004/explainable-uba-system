@@ -34,20 +34,41 @@ Cloud UBA System
 - Python 3.8 or higher
 - pip (Python package manager)
 - Virtual environment tool (venv or virtualenv)
+- Git LFS (for cloning with models and data)
 - 2GB+ RAM recommended
 - Windows/Linux/macOS
 
+**Large Files via Git LFS:**
+This repository includes pre-trained models and data files managed with Git LFS:
+- ML models (Random Forest, LLM fine-tuned model)
+- Training/test data (.npy, .csv files)
+- Visualization results (.png files)
+- Database files (.db)
+
 ## Installation
 
-### 1. Clone or Download the Repository
+### 1. Clone the Repository
 
+This repository uses Git LFS (Large File Storage) for models and data files.
+
+**First-time setup:**
 ```bash
-# If using git
-git clone <repository-url>
-cd <project-directory>
+# Install Git LFS (one-time setup)
+# Windows: Download from https://git-lfs.github.com/
+# macOS: brew install git-lfs
+# Linux: sudo apt-get install git-lfs
 
-# Or download and extract the ZIP file
+# Initialize Git LFS
+git lfs install
 ```
+
+**Clone the repository:**
+```bash
+git clone https://github.com/cosmium2004/explainable-uba-system.git
+cd explainable-uba-system
+```
+
+**Note:** If you cloned without Git LFS installed, run `git lfs pull` to download the large files.
 
 ### 2. Create Virtual Environment
 
@@ -430,6 +451,19 @@ curl -X GET http://localhost:5000/api/metrics \
 ```
 
 ## Troubleshooting
+
+### Issue: Git LFS files not downloaded
+
+**Solution**: Ensure Git LFS is installed and pull the files:
+```bash
+git lfs install
+git lfs pull
+```
+
+To verify LFS files are downloaded:
+```bash
+git lfs ls-files
+```
 
 ### Issue: Model file not found
 

@@ -5,7 +5,11 @@ This file contains the main Flask application.
 
 import os
 import logging
+from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
+
+# Load environment variables from .env file
+load_dotenv()
 from api.routes import api_blueprint
 from database.connector import init_app as init_db
 from monitoring.logger import setup_logging
@@ -103,4 +107,4 @@ def create_app(test_config=None):
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5001)))

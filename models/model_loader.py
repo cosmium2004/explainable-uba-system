@@ -44,7 +44,7 @@ def get_model():
         else:
             # Use default model path
             model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models')
-            model_path = "D:/MiniProject/LLM/models/random_forest_tuned.pkl"
+            model_path = os.path.join(model_dir, 'random_forest_tuned.pkl')
             logger.info(f"No model version found in database, using default model at {model_path}")
         
         # Check if model file exists
@@ -99,7 +99,7 @@ def get_feature_pipeline():
         
         # Get model directory
         model_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'models')
-        pipeline_path = "D:/MiniProject/LLM/models/preprocessor.pkl"
+        pipeline_path = os.path.join(model_dir, 'preprocessor.pkl')
         
         # Check if pipeline file exists
         if not os.path.exists(pipeline_path):

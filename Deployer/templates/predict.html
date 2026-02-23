@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Cloud UBA - Prediction{% endblock %}
+
+{% block content %}
+<h2>Anomaly Prediction</h2>
+<p>Submit an event to check for anomalous behavior.</p>
+
+<div class="prediction-form">
+    <form id="prediction-form">
+        <div class="mb-3">
+            <label for="api-key" class="form-label">API Key</label>
+            <input type="password" class="form-control" id="api-key" name="api_key" value="{{ api_key }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="user_id" class="form-label">User ID</label>
+            <input type="text" class="form-control" id="user_id" name="user_id" required>
+        </div>
+        <div class="mb-3">
+            <label for="timestamp" class="form-label">Timestamp</label>
+            <input type="datetime-local" class="form-control" id="timestamp" name="timestamp" required>
+        </div>
+        <div class="mb-3">
+            <label for="action_type" class="form-label">Action Type</label>
+            <select class="form-control" id="action_type" name="action_type" required>
+                <option value="login">Login</option>
+                <option value="logout">Logout</option>
+                <option value="download">Download</option>
+                <option value="upload">Upload</option>
+                <option value="delete">Delete</option>
+                <option value="view">View</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="resource_id" class="form-label">Resource ID (optional)</label>
+            <input type="text" class="form-control" id="resource_id" name="resource_id">
+        </div>
+        <div class="mb-3">
+            <label for="ip_address" class="form-label">IP Address (optional)</label>
+            <input type="text" class="form-control" id="ip_address" name="ip_address">
+        </div>
+        <div class="mb-3">
+            <label for="device_type" class="form-label">Device Type</label>
+            <select class="form-control" id="device_type" name="device_type" required>
+                <option value="desktop">Desktop</option>
+                <option value="mobile">Mobile</option>
+                <option value="tablet">Tablet</option>
+                <option value="server">Server</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="data_volume_mb" class="form-label">Data Volume (MB)</label>
+            <input type="number" class="form-control" id="data_volume_mb" name="data_volume_mb" min="0" step="any" required>
+        </div>
+        <div class="mb-3">
+            <label for="failed_attempts" class="form-label">Failed Attempts</label>
+            <input type="number" class="form-control" id="failed_attempts" name="failed_attempts" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label for="location_change" class="form-label">Location Change</label>
+            <select class="form-control" id="location_change" name="location_change" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="device_type" class="form-label">Device Type (optional)</label>
+            <input type="text" class="form-control" id="device_type" name="device_type">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+    <div id="prediction-result" class="mt-4"></div>
+</div>
+{% endblock %}

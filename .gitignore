@@ -38,33 +38,28 @@ env/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-*.ipynb
+# *.ipynb - can be tracked if needed
 
 # Deployer (duplicate deployment folder)
-Deployer/
+# Deployer/ - can be tracked if needed
 
-# Database
-*.db
+# Database (tracked with LFS)
 *.sqlite
 *.sqlite3
-instance/
 
 # Logs
 logs/
 *.log
 
-# ML Models and Data
-models/*.pkl
-models/llm/
-data/
+# ML Models and Data (tracked with LFS)
+# Large files are tracked via Git LFS
 
-# Results
-results/
-visualizations/
-static/visualizations/
+# Results (tracked with LFS for images)
+results/*.txt
+results/*.json
 
-# Test files
-test_batch.csv
+# Test files (tracked with LFS)
+# test_batch.csv is tracked
 
 # System
 .DS_Store

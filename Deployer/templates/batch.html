@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Cloud UBA - Batch Processing{% endblock %}
+
+{% block content %}
+<h2>Batch Anomaly Detection</h2>
+<p>Upload a CSV file with multiple events for batch processing.</p>
+
+<div class="prediction-form">
+    <form id="batch-form" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="api-key" class="form-label">API Key</label>
+            <input type="password" class="form-control" id="api-key" name="api_key" value="{{ api_key }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="batch-file" class="form-label">CSV File</label>
+            <input type="file" class="form-control" id="batch-file" name="file" accept=".csv" required>
+            <div class="form-text">CSV should have columns: user_id, timestamp, action_type, resource_id (optional), ip_address (optional), device_type, data_volume_mb, failed_attempts, location_change</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload and Process</button>
+    </form>
+
+    <div id="batch-result" class="mt-4"></div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const batchForm = document.getElementById('batch-form');
+    if (batchForm) {
+        batchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(batchForm);
+            
+            fetch('/api/batch', {
+                method: 'POST',
+                headers: {
+                    'X-API-Key': document.getElementById('api-key').value
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultHtml = `<div class="alert alert-info">
+                    <h4>Batch Processing Results</h4>
+                    <p>Processed ${data.results.length} events</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                data.results.forEach(result => {
+                    resultHtml += `<tr>
+                        <td>${result.user_id}</td>
+                        <td>${result.timestamp}</td>
+                        <td>${result.action_type}</td>
+                        <td>${result.score.toFixed(4)}</td>
+                        <td>${result.score > 0.8 ? '<span class="badge bg-danger">High</span>' : 
+                              result.score > 0.5 ? '<span class="badge bg-warning">Medium</span>' : 
+                              '<span class="badge bg-success">Low</span>'}</td>
+                    </tr>`;
+                });
+                
+                resultHtml += `</tbody></table></div>`;
+                document.getElementById('batch-result').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                document.getElementById('batch-result').innerHTML = 
+                    `<div class="alert alert-danger">
+                        <h4>Error</h4>
+                        <p>${error.message}</p>
+                    </div>`;
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}
